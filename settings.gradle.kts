@@ -16,9 +16,11 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url = uri("https://maven.google.com")
+        }
     }
 }
 
 rootProject.name = "ChatBot"
 include(":app")
- 
