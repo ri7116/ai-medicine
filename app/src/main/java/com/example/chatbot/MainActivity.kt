@@ -23,6 +23,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.chatbot.features.chatbot.ChatListScreen
 import com.example.chatbot.features.chatbot.ChatScreen
 import com.example.chatbot.features.pharmacy.PharmacyScreen
 import com.example.chatbot.features.search.SearchScreen
@@ -105,10 +106,13 @@ fun AppNavHost(
             SearchScreen()
         }
         composable(Destination.CHATBOT.route) {
-            ChatScreen()
+            ChatScreen(navController = navController)
         }
         composable(Destination.PHARMACY.route) {
             PharmacyScreen()
+        }
+        composable("chat_list") {
+            ChatListScreen(navController = navController)
         }
     }
 }
