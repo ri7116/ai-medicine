@@ -1,30 +1,15 @@
 package com.example.chatbot.features.chatbot
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,20 +20,22 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.example.chatbot.ui.theme.ChatBotTheme
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+// 데이터 모델
 data class ChatMessageUiModel(
     val message: String,
     val isUser: Boolean,
-    val timestamp: Long
+    val timestamp: Long = System.currentTimeMillis()
 )
 
 fun Long.formatTime(): String {
-    val sdf = SimpleDateFormat("a hh:mm", Locale.getDefault())
+    val sdf = SimpleDateFormat("a h:mm", Locale.getDefault())
     return sdf.format(Date(this))
 }
 
@@ -62,19 +49,39 @@ val InfoS = TextStyle(fontSize = 12.sp, color = Gray500)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatScreen(modifier: Modifier = Modifier) {
+fun ChatScreen(
+    modifier: Modifier = Modifier,
+    navController: NavHostController? = null,
+    chatId: String? = null, // [추가됨] 외부에서 ID를 받음
+    viewModel: ChatViewModel = viewModel() // [추가됨] 뷰모델 연결
+) {
+    // 뷰모델에 채팅방 ID 전달 (한 번만 실행)
+    LaunchedEffect(chatId) {
+        viewModel.setChatId(chatId)
+    }
+
+    // 뷰모델에서 메시지 목록 상태 구독
+    val messages by viewModel.messages.collectAsState()
+    
     var textInput by remember { mutableStateOf("") }
-    val sampleMessages = listOf(
-        ChatMessageUiModel("안녕하세요! AI 약사입니다.", false, System.currentTimeMillis() - 200000),
-        ChatMessageUiModel("요즘 체력이 안 좋은데 약 추천해줄 수 있어?", true, System.currentTimeMillis() - 50000),
-        ChatMessageUiModel("네, 타우린을 추천드려요", false, System.currentTimeMillis())
-    )
-    val messages = remember { mutableStateListOf(*sampleMessages.toTypedArray()) }
     val listState = rememberLazyListState()
-    val scope = rememberCoroutineScope()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = { Text("AI 챗봇") },
+                windowInsets = WindowInsets(0.dp),
+                navigationIcon = {
+                    IconButton(onClick = { navController?.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "뒤로가기"
+                        )
+                    }
+                }
+            )
+        },
         bottomBar = {
             Row(
                 modifier = Modifier
@@ -88,22 +95,15 @@ fun ChatScreen(modifier: Modifier = Modifier) {
                     value = textInput,
                     onValueChange = { textInput = it },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("메시지 입력...") }
+                    placeholder = { Text("메시지 입력...") },
+                    singleLine = true
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(onClick = {
                     if (textInput.isNotBlank()) {
-                        messages.add(
-                            ChatMessageUiModel(textInput, true, System.currentTimeMillis())
-                        )
-                        val currentInput = textInput
+                        // [수정됨] 뷰모델에 전송 요청
+                        viewModel.sendMessage(textInput)
                         textInput = ""
-                        scope.launch {
-                            kotlinx.coroutines.delay(1000)
-                            messages.add(
-                                ChatMessageUiModel("'$currentInput'라고 하셨네요!", false, System.currentTimeMillis())
-                            )
-                        }
                     }
                 }) {
                     Text("전송")
@@ -117,12 +117,14 @@ fun ChatScreen(modifier: Modifier = Modifier) {
                 .fillMaxSize()
                 .padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 16.dp)
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
         ) {
             items(messages) { message ->
                 ChatBubble(chatMessage = message)
             }
         }
+
+        // 새 메시지가 오면 자동으로 아래로 스크롤
         LaunchedEffect(messages.size) {
             if (messages.isNotEmpty()) {
                 listState.animateScrollToItem(messages.size - 1)
@@ -156,7 +158,7 @@ fun ChatBubble(
             ProfileImage(
                 modifier = Modifier
                     .align(Alignment.Top)
-                    .size(48.dp),
+                    .size(40.dp),
             )
             Spacer(modifier = Modifier.width(8.dp))
             MessageBox(
@@ -179,14 +181,20 @@ fun MessageBox(
     Box(
         modifier = modifier
             .widthIn(max = if (isUser) maxWidthDp else maxWidthDp - 56.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .clip(
+                RoundedCornerShape(
+                    topStart = 16.dp,
+                    topEnd = 16.dp,
+                    bottomStart = if (isUser) 16.dp else 0.dp,
+                    bottomEnd = if (isUser) 0.dp else 16.dp
+                )
+            )
             .background(if (isUser) Gray200 else Gray300)
-            .padding(8.dp),
-        contentAlignment = Alignment.Center,
+            .padding(12.dp),
+        contentAlignment = Alignment.CenterStart,
     ) {
         Text(
             text = message,
-            modifier = Modifier.padding(all = 4.dp),
             style = TextSRegular,
         )
     }
@@ -205,8 +213,11 @@ fun ProfileImage(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .clip(CircleShape)
-            .background(Gray500)
-    )
+            .background(Gray500),
+        contentAlignment = Alignment.Center
+    ) {
+        Text("AI", color = Color.White, fontSize = 12.sp)
+    }
 }
 
 @Preview(showBackground = true)
