@@ -1,4 +1,5 @@
 plugins {
+    alias(libs.plugins.google.services)
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
@@ -6,9 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.chatbot"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.chatbot"
@@ -50,8 +49,19 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    implementation("androidx.compose.material:material-icons-extended:1.6.7")
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    // [수정됨] Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+
+    // [수정됨] Vertex AI (ktx 제거해야 함)
+    implementation("com.google.firebase:firebase-vertexai")
+
+    // [수정됨] Firestore (ktx 필요함)
+    implementation("com.google.firebase:firebase-firestore-ktx")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
