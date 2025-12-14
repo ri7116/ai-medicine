@@ -8,10 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -34,17 +34,14 @@ fun ChatListScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text("기록") },
+                title = { Text("대화 목록") },
                 windowInsets = WindowInsets(0.dp), // 상태 표시줄 영역 무시
-                navigationIcon = {
-                    IconButton(onClick = { navController?.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "뒤로가기"
-                        )
-                    }
-                }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { navController?.navigate("chat_screen") }) {
+                Icon(Icons.Default.Add, contentDescription = "새 대화 시작")
+            }
         }
     ) { innerPadding ->
         Column(

@@ -55,18 +55,19 @@ enum class Destination(
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-    val startDestination = Destination.CHATBOT
-    var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
+    // 앱의 전체 네비게이션을 관리하는 NavController
+    // 이 NavController는 하단 탭 이동과 화면 간 이동을 모두 제어합니다.
+    var selectedDestination by rememberSaveable { mutableStateOf(Destination.CHATBOT.route) }
 
     Scaffold(
         modifier = modifier,
         bottomBar = {
             NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
-                Destination.entries.forEachIndexed { index, destination ->
+                Destination.entries.forEach { destination ->
                     NavigationBarItem(
-                        selected = selectedDestination == index,
+                        selected = selectedDestination == destination.route,
                         onClick = {
-                            selectedDestination = index
+                            selectedDestination = destination.route
                             navController.navigate(destination.route) {
                                 popUpTo(navController.graph.startDestinationId) {
                                     saveState = true
@@ -87,32 +88,39 @@ fun MainScreen(modifier: Modifier = Modifier) {
             }
         }
     ) { contentPadding ->
-        AppNavHost(navController, startDestination, modifier = Modifier.padding(contentPadding))
+        // AppNavHost에 NavController와 시작 지점을 전달합니다.
+        AppNavHost(
+            navController = navController, 
+            startDestination = Destination.CHATBOT.route, // 시작 화면을 챗봇 목록으로 변경
+            modifier = Modifier.padding(contentPadding)
+        )
     }
 }
 
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    startDestination: Destination,
+    startDestination: String,
     modifier: Modifier = Modifier
 ) {
     NavHost(
         navController = navController,
-        startDestination = startDestination.route,
+        startDestination = startDestination,
         modifier = modifier
     ) {
         composable(Destination.SEARCH.route) {
             SearchScreen()
         }
+        // '챗봇' 탭의 시작 화면을 ChatListScreen으로 변경합니다.
         composable(Destination.CHATBOT.route) {
-            ChatScreen(navController = navController)
+            ChatListScreen(navController = navController)
         }
         composable(Destination.PHARMACY.route) {
             PharmacyScreen()
         }
-        composable("chat_list") {
-            ChatListScreen(navController = navController)
+        // 1:1 대화 화면을 위한 새로운 경로를 만듭니다.
+        composable("chat_screen") { 
+            ChatScreen(navController = navController)
         }
     }
 }
