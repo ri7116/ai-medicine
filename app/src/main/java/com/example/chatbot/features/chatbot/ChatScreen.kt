@@ -21,7 +21,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -97,15 +97,13 @@ fun ChatScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text("AI - Medicine") },
+                title = { Text("AI 챗봇") },
                 windowInsets = WindowInsets(0.dp), // 상태 표시줄 영역 무시
-                actions = {
-                    IconButton(onClick = {
-                        navController?.navigate("chat_list")
-                    }) {
+                navigationIcon = { // 뒤로가기 버튼 추가
+                    IconButton(onClick = { navController?.popBackStack() }) {
                         Icon(
-                            imageVector = Icons.Default.List,
-                            contentDescription = "대화 목록"
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "뒤로가기"
                         )
                     }
                 }
