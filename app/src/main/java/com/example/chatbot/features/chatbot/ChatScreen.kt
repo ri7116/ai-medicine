@@ -77,7 +77,7 @@ fun ChatScreen(
 ) {
 
     val generativeModel = remember {
-        Firebase.vertexAI.generativeModel("gemini-1.5-flash-latest")
+        Firebase.vertexAI.generativeModel("gemini-2.0-flash")
     }
     val chat = remember { generativeModel.startChat() }
 
