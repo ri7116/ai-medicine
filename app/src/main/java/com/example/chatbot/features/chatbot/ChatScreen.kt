@@ -97,7 +97,7 @@ fun ChatScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text("AI ") },
+                title = { Text("AI - Medicine") },
                 windowInsets = WindowInsets(0.dp), // 상태 표시줄 영역 무시
                 actions = {
                     IconButton(onClick = {

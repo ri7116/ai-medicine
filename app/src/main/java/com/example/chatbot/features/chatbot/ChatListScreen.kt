@@ -3,6 +3,7 @@ package com.example.chatbot.features.chatbot
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,7 +34,8 @@ fun ChatListScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text("대화 목록") },
+                title = { Text("기록") },
+                windowInsets = WindowInsets(0.dp), // 상태 표시줄 영역 무시
                 navigationIcon = {
                     IconButton(onClick = { navController?.popBackStack() }) {
                         Icon(
