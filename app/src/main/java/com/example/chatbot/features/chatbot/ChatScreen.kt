@@ -1,20 +1,7 @@
 package com.example.chatbot.features.chatbot
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -22,15 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,15 +20,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.chatbot.ui.theme.ChatBotTheme
-import com.google.firebase.Firebase
-import com.google.firebase.vertexai.vertexAI
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+// 데이터 모델
 data class ChatMessageUiModel(
     val message: String,
     val isUser: Boolean,
@@ -73,24 +51,19 @@ val InfoS = TextStyle(fontSize = 12.sp, color = Gray500)
 @Composable
 fun ChatScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController? = null
+    navController: NavHostController? = null,
+    chatId: String? = null, // [추가됨] 외부에서 ID를 받음
+    viewModel: ChatViewModel = viewModel() // [추가됨] 뷰모델 연결
 ) {
-
-    val generativeModel = remember {
-        Firebase.vertexAI.generativeModel("gemini-2.0-flash")
+    // 뷰모델에 채팅방 ID 전달 (한 번만 실행)
+    LaunchedEffect(chatId) {
+        viewModel.setChatId(chatId)
     }
-    val chat = remember { generativeModel.startChat() }
 
-    val scope = rememberCoroutineScope()
+    // 뷰모델에서 메시지 목록 상태 구독
+    val messages by viewModel.messages.collectAsState()
+    
     var textInput by remember { mutableStateOf("") }
-    val messages = remember { mutableStateListOf<ChatMessageUiModel>() }
-
-    LaunchedEffect(Unit) {
-        if (messages.isEmpty()) {
-            messages.add(ChatMessageUiModel("안녕하세요! 무엇을 도와드릴까요?", isUser = false))
-        }
-    }
-
     val listState = rememberLazyListState()
 
     Scaffold(
@@ -98,8 +71,8 @@ fun ChatScreen(
         topBar = {
             TopAppBar(
                 title = { Text("AI 챗봇") },
-                windowInsets = WindowInsets(0.dp), // 상태 표시줄 영역 무시
-                navigationIcon = { // 뒤로가기 버튼 추가
+                windowInsets = WindowInsets(0.dp),
+                navigationIcon = {
                     IconButton(onClick = { navController?.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
@@ -128,28 +101,9 @@ fun ChatScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(onClick = {
                     if (textInput.isNotBlank()) {
-                        val userMessage = textInput
-                        messages.add(ChatMessageUiModel(userMessage, isUser = true))
+                        // [수정됨] 뷰모델에 전송 요청
+                        viewModel.sendMessage(textInput)
                         textInput = ""
-
-                        scope.launch {
-                            try {
-                                val response = chat.sendMessage(userMessage)
-                                messages.add(
-                                    ChatMessageUiModel(
-                                        response.text ?: "답변이 없습니다.",
-                                        isUser = false
-                                    )
-                                )
-                            } catch (e: Exception) {
-                                messages.add(
-                                    ChatMessageUiModel(
-                                        "오류 발생: ${e.localizedMessage}",
-                                        isUser = false
-                                    )
-                                )
-                            }
-                        }
                     }
                 }) {
                     Text("전송")
@@ -162,18 +116,18 @@ fun ChatScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            reverseLayout = true, // 아래부터 쌓이도록 설정
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
         ) {
-            items(messages.reversed()) { message -> // 리스트를 뒤집어서 최신 메시지가 아래로 오도록 함
+            items(messages) { message ->
                 ChatBubble(chatMessage = message)
             }
         }
 
+        // 새 메시지가 오면 자동으로 아래로 스크롤
         LaunchedEffect(messages.size) {
             if (messages.isNotEmpty()) {
-                listState.animateScrollToItem(0) // 뒤집힌 리스트의 맨 위(화면상 맨 아래)로 스크롤
+                listState.animateScrollToItem(messages.size - 1)
             }
         }
     }
