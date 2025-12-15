@@ -17,6 +17,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildFeatures {
+            viewBinding = true
+        }
     }
 
     buildTypes {
@@ -61,6 +65,11 @@ dependencies {
 
     // [수정됨] Firestore (ktx 필요함)
     implementation("com.google.firebase:firebase-firestore-ktx")
+
+    // [수정됨] 25.12.15.
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
