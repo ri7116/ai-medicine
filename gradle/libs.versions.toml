@@ -18,6 +18,7 @@ materialIconsExtended = "1.6.7"
 # Firebase
 firebaseBom = "33.7.0"
 googleGmsGoogleServices = "4.4.2"
+uiUnit = "1.10.0"
 
 [libraries]
 
@@ -48,6 +49,7 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-compose-ui-unit = { group = "androidx.compose.ui", name = "ui-unit", version.ref = "uiUnit" }
 
 [plugins]
 
