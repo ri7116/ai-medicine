@@ -26,8 +26,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.chatbot.features.chatbot.ChatListScreen
-import com.example.chatbot.features.chatbot.ChatScreen
+import com.example.chatbot.features.chatbot.ui.ChatListScreen
+import com.example.chatbot.features.chatbot.ui.ChatScreen
 import com.example.chatbot.features.pharmacy.PharmacyDetailScreen
 import com.example.chatbot.features.pharmacy.PharmacyScreen
 import com.example.chatbot.features.pharmacy.PharmacyViewModel
@@ -93,7 +93,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }
     ) { contentPadding ->
         AppNavHost(
-            navController = navController, 
+            navController = navController,
             startDestination = Destination.CHATBOT.route,
             pharmacyViewModel = pharmacyViewModel,
             modifier = Modifier.padding(contentPadding)
@@ -138,7 +138,7 @@ fun AppNavHost(
             }
         }
         // 새 채팅
-        composable("chat_screen") { 
+        composable("chat_screen") {
             ChatScreen(navController = navController, chatId = null)
         }
         // 기존 채팅
