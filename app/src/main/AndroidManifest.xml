@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ChatBot">
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -18,10 +19,26 @@
             android:theme="@style/Theme.ChatBot">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".features.search.MedicineSearchActivity"
+            android:label="약품 검색" />
+
+        <activity
+            android:name=".features.search.SearchResultActivity"
+            android:label="검색 결과"
+            android:parentActivityName=".features.search.MedicineSearchActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <activity
+            android:name=".features.search.MedicineDetailActivity"
+            android:label="약품 상세 정보"
+            android:parentActivityName=".features.search.SearchResultActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
     </application>
 
 </manifest>
