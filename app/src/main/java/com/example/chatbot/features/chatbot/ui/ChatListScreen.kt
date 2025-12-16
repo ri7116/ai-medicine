@@ -1,4 +1,4 @@
-package com.example.chatbot.features.chatbot
+package com.example.chatbot.features.chatbot.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -115,7 +115,6 @@ fun MessageCard(title: String, content: String, date: String, modifier: Modifier
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
