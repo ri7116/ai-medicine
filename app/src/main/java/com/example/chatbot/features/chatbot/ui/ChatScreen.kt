@@ -1,4 +1,4 @@
-package com.example.chatbot.features.chatbot
+package com.example.chatbot.features.chatbot.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -43,17 +43,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.chatbot.features.chatbot.data.ChatMessageUiModel
 import com.example.chatbot.ui.theme.ChatBotTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
-// [추가됨] 데이터 모델, 전역 변수 및 함수
-data class ChatMessageUiModel(
-    val message: String,
-    val isUser: Boolean,
-    val timestamp: Long = System.currentTimeMillis()
-)
 
 fun Long.formatTime(): String {
     val sdf = SimpleDateFormat("a h:mm", Locale.getDefault())
