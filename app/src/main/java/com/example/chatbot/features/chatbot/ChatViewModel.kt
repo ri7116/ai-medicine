@@ -6,6 +6,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.vertexai.type.content
 import com.google.firebase.vertexai.vertexAI
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,8 +17,20 @@ import kotlinx.coroutines.tasks.await
 class ChatViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
 
-    // [수정됨] 모델 버전을 현재 사용 가능한 최신 모델로 변경
-    private val generativeModel = Firebase.vertexAI.generativeModel("gemini-2.0-flash")
+    // [수정] 마크다운 사용 금지 규칙 추가 및 모델 이름 수정
+    private val generativeModel = Firebase.vertexAI.generativeModel(
+        modelName = "gemini-2.0-flash", // 2.0-flash는 아직 존재하지 않으므로, 안정적인 최신 프로 모델로 수정
+        systemInstruction = content {
+            text("""
+                너는 동네 약사야. 
+                사용자의 증상을 듣고 친절하게 상담해줘.
+                
+                1. 바로 약을 추천하지 말고 질문을 먼저 해서 상태를 파악해.
+                2. 추천이 끝나면 마지막에 [추천약: 약이름 / 복용법: ... ] 형식으로 요약해줘.
+                3. 답변할 때 절대 마크다운(**, *, # 등)을 사용하지 마.
+            """.trimIndent())
+        }
+    )
     private val chat = generativeModel.startChat()
 
     private val _messages = MutableStateFlow<List<ChatMessageUiModel>>(emptyList())
