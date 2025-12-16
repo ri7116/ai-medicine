@@ -30,6 +30,11 @@ import com.example.chatbot.features.chatbot.ChatScreen
 import com.example.chatbot.features.pharmacy.PharmacyScreen
 import com.example.chatbot.features.search.SearchScreen
 import com.example.chatbot.ui.theme.ChatBotTheme
+import android.content.Intent
+import androidx.compose.ui.platform.LocalContext
+import com.example.chatbot.features.search.MedicineSearchActivity
+import com.example.chatbot.features.search.SearchFilter
+import com.example.chatbot.features.search.SearchResultActivity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,13 +107,22 @@ fun AppNavHost(
     startDestination: String,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier
     ) {
         composable(Destination.SEARCH.route) {
-            SearchScreen()
+            SearchScreen(
+                onSearchClicked = { filter ->
+                    val intent = Intent(context, SearchResultActivity::class.java).apply {
+                        putExtra("SEARCH_FILTER", filter)
+                    }
+                    context.startActivity(intent)
+                }
+            )
         }
         composable(Destination.CHATBOT.route) {
             ChatListScreen(navController = navController)
