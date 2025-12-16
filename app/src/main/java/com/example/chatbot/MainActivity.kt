@@ -19,15 +19,18 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.chatbot.features.chatbot.ChatListScreen
-import com.example.chatbot.features.chatbot.ChatScreen
+import com.example.chatbot.features.chatbot.ui.ChatListScreen
+import com.example.chatbot.features.chatbot.ui.ChatScreen
+import com.example.chatbot.features.pharmacy.PharmacyDetailScreen
 import com.example.chatbot.features.pharmacy.PharmacyScreen
+import com.example.chatbot.features.pharmacy.PharmacyViewModel
 import com.example.chatbot.features.search.SearchScreen
 import com.example.chatbot.ui.theme.ChatBotTheme
 import android.content.Intent
@@ -63,6 +66,7 @@ enum class Destination(
 fun MainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     var selectedDestination by rememberSaveable { mutableStateOf(Destination.CHATBOT.route) }
+    val pharmacyViewModel: PharmacyViewModel = viewModel()
 
     Scaffold(
         modifier = modifier,
@@ -94,8 +98,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }
     ) { contentPadding ->
         AppNavHost(
-            navController = navController, 
+            navController = navController,
             startDestination = Destination.CHATBOT.route,
+            pharmacyViewModel = pharmacyViewModel,
             modifier = Modifier.padding(contentPadding)
         )
     }
@@ -105,6 +110,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
 fun AppNavHost(
     navController: NavHostController,
     startDestination: String,
+    pharmacyViewModel: PharmacyViewModel,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -128,10 +134,25 @@ fun AppNavHost(
             ChatListScreen(navController = navController)
         }
         composable(Destination.PHARMACY.route) {
-            PharmacyScreen()
+            PharmacyScreen(navController = navController, viewModel = pharmacyViewModel)
+        }
+        // ##### 수정된 부분: ID를 전달받는 새로운 상세 화면 라우트 #####
+        composable(
+            route = "pharmacy_detail/{pharmacyId}",
+            arguments = listOf(navArgument("pharmacyId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val pharmacyId = backStackEntry.arguments?.getString("pharmacyId")
+            // ViewModel에서 ID를 사용해 약국 정보 찾기
+            val pharmacy = pharmacyViewModel.pharmacies.find { it.id == pharmacyId }
+            if (pharmacy != null) {
+                PharmacyDetailScreen(navController = navController, pharmacy = pharmacy)
+            } else {
+                // 오류 처리: 이전 화면으로 돌아감
+                navController.popBackStack()
+            }
         }
         // 새 채팅
-        composable("chat_screen") { 
+        composable("chat_screen") {
             ChatScreen(navController = navController, chatId = null)
         }
         // 기존 채팅

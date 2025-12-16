@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    // 25.12.17. 추가
     id("kotlin-parcelize")
     id("org.jetbrains.kotlin.kapt")
 }
@@ -20,7 +19,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        }
+    }
 
     buildTypes {
         release {
@@ -57,21 +56,21 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    // [수정됨] Firebase BoM
+    // Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
 
-    // [수정됨] Vertex AI (ktx 제거해야 함)
+    // Vertex AI
     implementation("com.google.firebase:firebase-vertexai")
-
-    // [수정됨] Firestore (ktx 필요함)
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+    // Firestore
     implementation("com.google.firebase:firebase-firestore-ktx")
 
-    // [수정됨] 25.12.15.
+    // 25.12.15.
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.0")
 
-    // [수정됨] 25.12.16.
+    // 약품 검색 및 Glide 관련
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
@@ -81,6 +80,12 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
+
+    // 지도 및 위치 정보 관련
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+    implementation("com.google.maps.android:maps-compose:4.3.3")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation(libs.androidx.compose.ui.unit)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
