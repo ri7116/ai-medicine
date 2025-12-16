@@ -61,7 +61,7 @@ dependencies {
     // [수정됨] Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
 
-    // [수정됨] Vertex AI (ktx 제거해야 함)
+    // Vertex AI (이전 동작 상태로 복귀)
     implementation("com.google.firebase:firebase-vertexai")
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
     // [수정됨] Firestore (ktx 필요함)

@@ -19,7 +19,7 @@ class ChatViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
 
     private val generativeModel = Firebase.vertexAI.generativeModel(
-        modelName = "gemini-1.5-pro-latest",
+        modelName = "gemini-2.0-flash",
         systemInstruction = content {
             text(
                 """
