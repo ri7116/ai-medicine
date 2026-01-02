@@ -1,4 +1,4 @@
-# Ai_medicine
+# ai-medicine
 
 ## 앱 데모 영상
 
